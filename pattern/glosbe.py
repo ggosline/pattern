@@ -19,7 +19,7 @@ def process(ob):
 
 def getdef(word):
 
-    escword = html.escape(word)
+    escword = urllib.parse.quote(word)
     weburl = urllib.request.urlopen(url.format(escword))
     data = weburl.read().decode('utf-8')
 

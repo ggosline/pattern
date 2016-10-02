@@ -1,0 +1,224 @@
+default namespace = ""
+namespace mods = "http://www.loc.gov/mods/v3"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+start =
+    element publication {
+        attribute lang { xsd:NCName },
+        attribute xsi:noNamespaceSchemaLocation { xsd:anyURI },
+        element metaData {
+            element defaultMediaUrl { xsd:anyURI },
+            element mods:mods {
+                element mods:titleInfo {
+                    element mods:title { text },
+                    element mods:partNumber { xsd:integer },
+                    element mods:partName { text }
+                },
+                element mods:name {
+                    attribute type { xsd:NCName },
+                    element mods:namePart { text },
+                    element mods:affiliation { text }
+                },
+                element mods:originInfo {
+                    element mods:publisher { text },
+                    element mods:dateIssued { xsd:integer }
+                },
+                element mods:identifier { text }
+            }
+        },
+        element textSection {
+            attribute type { text },
+            \string
+        }+,
+        element treatment {
+            element taxon {
+                attribute class { xsd:NCName }?,
+                heading?,
+                element nomenclature {
+                    element homotypes {
+                        nom*,
+                        (element nameType { nom, typeNotes? }
+                         | element specimenType {
+                               attribute notFound { xsd:boolean }?,
+                               attribute notSeen { xsd:boolean }?,
+                               attribute typeStatus { xsd:NCName }?,
+                               (text
+                                | gathering
+                                | typeNotes
+                                | element fullType { text })+
+                           }*)
+                    }+
+                },
+                (figureRef
+                 | element feature {
+                       attribute class { xsd:NCName },
+                       attribute isNotes { xsd:boolean }?,
+                       attribute lang { xsd:NCName }?,
+                       (\string
+                        | element char {
+                              attribute class { text },
+                              (text | br | figureRef | subChar | toKey)+
+                          }+)
+                   }
+                 | element figure {
+                       attribute id { xsd:NCName },
+                       attribute type { xsd:NCName }?,
+                       attribute url { xsd:NCName },
+                       (text
+                        | num
+                        | element figureLegend { (text | figureRef | gathering)+ }
+                        | element figureTitle { text })+
+                   }
+                 | element footnote {
+                       attribute id { xsd:NCName },
+                       element footnoteString { text }
+                   }
+                 | element key {
+                       attribute id { xsd:NCName }?,
+                       attribute num { text }?,
+                       element keyTitle { (text | figureRef)+ },
+                       (element couplet {
+                            attribute num { xsd:NMTOKEN },
+                            element question {
+                                attribute num { xsd:NCName },
+                                element text { (text | figureRef)+ },
+                                toKey?,
+                                element toCouplet {
+                                    attribute num { xsd:integer },
+                                    text
+                                }*,
+                                element toTaxon {
+                                    attribute doubtful { xsd:boolean }?,
+                                    attribute num { text }?,
+                                    (text
+                                     | element annotation { text })+
+                                }*
+                            }+
+                        }
+                        | element keynotes { text })+
+                   })*
+            }+
+        }
+    }
+\string =
+    element string {
+        (text
+         | br
+         | figureRef
+         | gathering
+         | heading
+         | element distributionLocality {
+               attribute class { text },
+               attribute doubtful { xsd:boolean }?,
+               attribute extra { xsd:boolean }?,
+               attribute frequency { xsd:NCName }?,
+               attribute status { xsd:NCName }?,
+               text
+           }
+         | element habitat { (text | altitude)+ }
+         | element references {
+               element reference { refPart+ }+
+           }
+         | element subHeading {
+               (text
+                | element footnoteRef {
+                      attribute ref { xsd:NCName },
+                      num
+                  })+
+           }
+         | element ul {
+               element li { (text | br)+ }+
+           }
+         | element vernacularNames {
+               element vernacularName {
+                   (text
+                    | name
+                    | element localLanguage { text })+
+               }+
+           })+
+    }
+heading = element heading { text }
+nom =
+    element nom {
+        attribute class { xsd:NCName },
+        (text
+         | name
+         | num
+         | element citation {
+               attribute class { xsd:NCName },
+               refPart+
+           }
+         | element nomenclaturalNotes { \string })+
+    }
+typeNotes = element typeNotes { \string }
+gathering =
+    element gathering {
+        attribute doubtful { xsd:boolean }?,
+        attribute notFound { xsd:boolean }?,
+        (text
+         | subCollection
+         | typeNotes
+         | element alternativeCollector { xsd:NCName }
+         | element alternativeFieldNum {
+               attribute doubtful { xsd:boolean }?,
+               text
+           }
+         | element collectionAndType { (text | subCollection)+ }
+         | element collectionStatus { text }
+         | element collectionTypeStatus { text }
+         | element collector { text }
+         | element dates {
+               element day { xsd:NMTOKEN }?,
+               element month { xsd:NMTOKEN }?,
+               (element fullDate {
+                    attribute doubtful { xsd:boolean }?,
+                    text
+                }
+                | element year { xsd:integer })?
+           }
+         | element fieldNum { text }
+         | element gatheringNotes { text }
+         | element locality {
+               attribute class { text },
+               attribute doubtful { xsd:boolean }?,
+               attribute isPreviousLocality { xsd:boolean }?,
+               (text
+                | altitude
+                | element coordinates {
+                      element latitude { text }?,
+                      element longitude { text }?
+                  })+
+           })+
+    }
+figureRef =
+    element figureRef {
+        attribute ref { xsd:NCName },
+        (text
+         | num
+         | element figurePart { text })+
+    }
+num = element num { text }
+toKey =
+    element toKey {
+        attribute num { text }?,
+        attribute ref { xsd:NCName },
+        text
+    }
+br = element br { empty }
+subChar =
+    element subChar {
+        attribute class { text },
+        (text | br | subChar)+
+    }
+name =
+    element name {
+        attribute class { text },
+        text
+    }
+altitude = element altitude { text }
+refPart =
+    element refPart {
+        attribute class { xsd:NCName },
+        text
+    }
+subCollection = element subCollection { text }

@@ -9,6 +9,8 @@ import pickle
 import locale
 from csv import DictReader
 
+from glosbe1 import glosbe
+
 locale.setlocale(locale.LC_ALL, 'fra')
 
 tker = pk()
@@ -31,12 +33,17 @@ with  open('frphrases.txt', encoding='utf-8') as frphrases:
         wset.update([singularize(word) for word in words])
 
 wlist = sorted(wset, key=locale.strxfrm)
-wvocs = [(word, (frlexicon.get(singularize(word))['English'] if frlexicon.get(singularize(word)) else None)) for word in wlist]
+
+wvocs = []
+for word in wlist:
+    if word and word.isalpha():
+        frlexwrd = frlexicon.get(word)['English'] if frlexicon.get(word) else None
+        glosbewrd = glosbe(word)
+        wvocs.append((word, frlexwrd, glosbewrd[0] if glosbewrd else None))
+        print (word, frlexwrd, glosbewrd[0] if glosbewrd else None)
 
 with open('frwords.txt', mode='w', encoding='utf-8') as frwords:
     for wvoc in wvocs:
-        print(wvoc[0], wvoc[1], sep='\t', file=frwords)
-
-
+        print(wvoc[0], wvoc[1], wvoc[2] ,sep='\t', file=frwords)
 
 pass
